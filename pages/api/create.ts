@@ -14,7 +14,7 @@ export default async function handler(
         content,
       },
     });
-    res.status(200).json({ message: "Note Created" });
+    res.status(200).json({ msg: "Note Created" });
   } catch (error) {
     res
       .status(500)

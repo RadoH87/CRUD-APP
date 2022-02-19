@@ -1,10 +1,14 @@
-import type { NextPage } from "next";
+import type { GetServerSideProps } from "next";
+import { prisma } from "../lib/prisma";
 import { useState } from "react";
-import Head from "next/head";
-import Image from "next/image";
-import { format } from "path/posix";
-import { setFlagsFromString } from "v8";
-import styles from "../styles/Home.module.css";
+
+interface Notes {
+  notes: {
+    id: string;
+    title: string;
+    content: string;
+  }[];
+}
 
 interface FormData {
   title: string;
@@ -12,7 +16,7 @@ interface FormData {
   id: string;
 }
 
-const Home: NextPage = () => {
+const Home = ({ notes }: Notes) => {
   const [form, setForm] = useState<FormData>({
     title: "",
     content: "",
@@ -21,10 +25,10 @@ const Home: NextPage = () => {
 
   async function create(data: FormData) {
     try {
-      fetch("http://localhost:3000/api/create", {
+      await fetch("http://localhost:3000/api/create", {
         body: JSON.stringify(data),
         headers: {
-          "Content-Type": "aplication/json",
+          "Content-Type": "application/json",
         },
         method: "POST",
       }).then(() => setForm({ title: "", content: "", id: "" }));
@@ -35,7 +39,7 @@ const Home: NextPage = () => {
 
   const handleSubmit = async (data: FormData) => {
     try {
-      create(data);
+      await create(data);
     } catch (error) {
       console.log(error);
     }
@@ -73,3 +77,18 @@ const Home: NextPage = () => {
 };
 
 export default Home;
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  const notes = await prisma.note.findMany({
+    select: {
+      title: true,
+      id: true,
+      content: true,
+    },
+  });
+  return {
+    props: {
+      notes,
+    },
+  };
+};
