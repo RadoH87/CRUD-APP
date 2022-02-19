@@ -47,6 +47,21 @@ const Home = ({ notes }: Notes) => {
     }
   }
 
+  async function deleteNote(id: string) {
+    try {
+      await fetch(`http://localhost:3000/api/note/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "DELETE",
+      }).then(() => {
+        refreshData();
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   const handleSubmit = async (data: FormData) => {
     try {
       await create(data);
@@ -82,7 +97,7 @@ const Home = ({ notes }: Notes) => {
           Add +
         </button>
       </form>
-      <div className="w-auto min-w[25%] max-w-min mt-20 mx-auto space-y-6 flex flex-col items-stretch">
+      <div className="w-auto min-w-[25%] max-w-min mt-20 mx-auto space-y-6 flex flex-col items-stretch">
         <ul>
           {notes.map((note) => (
             <li key={note.id} className="p-2 border-b border-gray-600">
@@ -91,6 +106,24 @@ const Home = ({ notes }: Notes) => {
                   <h3 className="font-bold">{note.title}</h3>
                   <p className="text-sm">{note.content}</p>
                 </div>
+                <button
+                  onClick={() =>
+                    setForm({
+                      title: note.title,
+                      content: note.content,
+                      id: note.id,
+                    })
+                  }
+                  className="px-3 mr-3 text-white bg-blue-500 rounded"
+                >
+                  Update
+                </button>
+                <button
+                  onClick={() => deleteNote(note.id)}
+                  className="px-3 text-white bg-red-500 rounded"
+                >
+                  X
+                </button>
               </div>
             </li>
           ))}
